@@ -1,6 +1,6 @@
--- BC2402_S04_G07_sql codes
 
--- 1. How many categories are in [customer_suppport]? (TIP: You need to decide whether to clean up the data.)
+
+-- Q1. How many categories are in [customer_suppport]? (TIP: You need to decide whether to clean up the data.)
 SELECT DISTINCT(category)
 FROM customer_support
 ORDER BY category COLLATE utf8mb4_bin DESC; -- 36 rows returned
@@ -13,7 +13,7 @@ SELECT COUNT(DISTINCT category) AS NumberOfCategories
 FROM customer_support;
 SET SQL_SAFE_UPDATES = 1; -- Therefore, after cleaning the data, there are 8 categories in customer_support, namely 'SHIPPING', 'REFUND', 'PAYMENT', 'ORDER', 'INVOICE', 'FEEDBACK', 'CONTACT', 'CANCEL'.
 
--- 2. [customer_suppport] For each category, display the number of records that contained colloquial variation and offensive language. (TIP: Refer to language generation tags.)
+-- Q2. [customer_suppport] For each category, display the number of records that contained colloquial variation and offensive language. (TIP: Refer to language generation tags.)
 SELECT category,
 COUNT(CASE WHEN flags LIKE '%Q%' THEN 1 END) AS numOfColloquialVariation,
 COUNT(CASE WHEN flags LIKE '%W%' THEN 1 END) AS numOfOffensiveLanguage
@@ -21,7 +21,7 @@ FROM customer_support
 GROUP BY category
 ORDER BY category;
 
--- 3. [flight_delay] For each airline, display the instances of cancellations and delays. (Hint: UNION, $merge)
+-- Q3. [flight_delay] For each airline, display the instances of cancellations and delays. (Hint: UNION, $merge)
 SELECT airline, 
 COUNT(*) AS numOfFlights, 'Cancelled' AS Status
 FROM flight_delay
@@ -37,7 +37,7 @@ WHERE ArrDelay > 0
 GROUP BY airline
 ORDER BY airline, Status; -- Notably, there are no flight cancellations
 
--- 4. [flight_delay] For each month, which route has the most instances of delays? (TIP: What are the first and last dates in the data?)
+-- Q4. [flight_delay] For each month, which route has the most instances of delays? (TIP: What are the first and last dates in the data?)
 SELECT MonthName, Route, DelayInstances
 FROM (
     SELECT 
@@ -53,7 +53,7 @@ FROM (
 WHERE RouteRank = 1
 ORDER BY FIELD(MonthName, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 
--- 5. [sia_stock] For the year 2023, display the quarter-on-quarter changes in high and low prices and the quarterly average price.
+-- Q5. [sia_stock] For the year 2023, display the quarter-on-quarter changes in high and low prices and the quarterly average price.
 WITH QuarterlyData AS (
     SELECT         
         YEAR(STR_TO_DATE(StockDate, '%m/%d/%Y')) AS Year,
@@ -86,7 +86,7 @@ FROM QuarterlyData
 WHERE Year = 2023
 ORDER BY Quarter;
 
--- 6.	[customer_booking] For each sales_channel and each route, display the following ratios
+-- Q6.	[customer_booking] For each sales_channel and each route, display the following ratios
 -- average length_of_stay / average flight_hour 
 -- average wants_extra_baggage / average flight_hour
 -- average wants_preferred_seat / average flight_hour
@@ -117,7 +117,7 @@ ORDER BY route, sales_channel, flight_duration;
 -- `AverageInFlightMealRequestPerFlightHour`
 -- Significance: A higher ratio indicates that for each hour of flight, a larger proportion of passengers are requesting in-flight meals (vice versa).
 
--- 7. [airlines_reviews] Airline seasonality. For each Airline and Class, display the averages of SeatComfort, FoodnBeverages, InflightEntertainment, ValueForMoney, and OverallRating for the seasonal and non-seasonal periods, respectively.
+-- Q7. [airlines_reviews] Airline seasonality. For each Airline and Class, display the averages of SeatComfort, FoodnBeverages, InflightEntertainment, ValueForMoney, and OverallRating for the seasonal and non-seasonal periods, respectively.
 -- Since seasonality refers to fluctuations in flight demand due to external factors, we will assume that the seasonality of flights is determined by the variable `MonthFlown`.
 SELECT 
     Airline,
@@ -141,7 +141,7 @@ ORDER BY
     FIELD(Class, 'First Class', 'Business Class', 'Premium Economy', 'Economy Class'),
     Period;
 
--- 8. [airlines_reviews] What are the common complaints? For each Airline and TypeofTraveller, list the top 5 common issues.
+-- Q8. [airlines_reviews] What are the common complaints? For each Airline and TypeofTraveller, list the top 5 common issues.
 -- (a) Count the frequency of words to shortlist categories of complaints
 WITH Words AS (
   SELECT LOWER(word) AS word
@@ -324,7 +324,7 @@ FROM TopComplaints
 WHERE ComplaintRank <= 5  -- Show only the top 5 complaints for each airline and traveler type
 ORDER BY Airline, TypeofTraveller, ComplaintRank;
 
--- 9. [airlines_reviews] and additional data*. Are there any systematic differences in customer preferences/complaints pre- and post- COVID specific to Singapore Airlines? 
+-- Q9. [airlines_reviews] and additional data*. Are there any systematic differences in customer preferences/complaints pre- and post- COVID specific to Singapore Airlines? 
 -- In addition to customer satisfaction, what do you think contributed to the strong performance of Singapore Airlines in recent periods?
 
 -- Pre-COVID: Period before the outbreak of COVID-19 (before 23 Jan 2020)
@@ -469,3 +469,4 @@ SELECT
     ROUND(AvgOverallRating, 2) AS AvgOverallRating
 FROM PrePostCovid
 ORDER BY COVID_Period;
+
